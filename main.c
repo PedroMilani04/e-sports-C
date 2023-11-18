@@ -136,6 +136,38 @@ void imprimirJogador(JOGADOR players[])
     fclose(file);
 }
 
+void alterarJogador(JOGADOR players[])
+{
+    FILE *file;
+    file = fopen("jogadores.dat", "rb+"); // Open in read and write mode
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    int a;
+    printf("Jogador a ser alterado: ");
+    scanf("%d", &a);
+
+    JOGADOR jogadorAtualizado;
+    fseek(file, a * sizeof(JOGADOR), SEEK_SET);
+    fread(&jogadorAtualizado, sizeof(JOGADOR), 1, file);
+
+    // Prompt for the field to be updated
+    printf("Digite o novo nome do jogador: ");
+    scanf("%s", jogadorAtualizado.nome);
+
+    // Write the updated record back to the file
+    fseek(file, a * sizeof(JOGADOR), SEEK_SET);
+    fwrite(&jogadorAtualizado, sizeof(JOGADOR), 1, file);
+
+    printf("Jogador alterado com sucesso!\n");
+
+    fclose(file);
+}
+
 int main()
 {
     setlocale(LC_ALL, "portuguese");
@@ -145,6 +177,9 @@ int main()
 
     printf("Olá! Bem-vindo ao programa E-Sports.\n");
     printf("1. Registrar jogador\n");
+    printf("2. Imprimir jogador\n");
+    printf("3. Alterar jogador\n");
+
     printf("Opção: ");
     scanf("%d", &opcao);
 
@@ -152,10 +187,12 @@ int main()
     {
     case 1:
         criarJogador(jogadores);
-        // printf("%s", jogadores[0].nome);
         break;
     case 2:
         imprimirJogador(jogadores);
+        break;
+    case 3:
+        alterarJogador(jogadores);
         break;
     default:
         printf("Opção inválida.\n");
