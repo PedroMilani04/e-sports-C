@@ -107,7 +107,8 @@ void criarJogador(JOGADOR players[])
     return;
 }
 
-void exibirJogador(JOGADOR *a) {
+void exibirJogador(JOGADOR *a)
+{
     printf("Nome: %s\n", a->nome);
 }
 
@@ -168,6 +169,64 @@ void alterarJogador(JOGADOR players[])
     fclose(file);
 }
 
+void alterarPosicao(JOGADOR players[])
+{
+    FILE *file;
+    file = fopen("jogadores.dat", "rb+"); // Open in read and write mode
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    int a;
+    printf("Jogador a ser alterado: ");
+    scanf("%d", &a);
+
+    JOGADOR jogadorAtualizado;
+    fseek(file, a * sizeof(JOGADOR), SEEK_SET);
+    fread(&jogadorAtualizado, sizeof(JOGADOR), 1, file);
+
+    int opcao;
+    int pont;
+    printf("1. Vitória\n");
+    printf("2. Derrota\n");
+    printf("3. Empate\n");
+    printf("Opção: ");
+    scanf("%d", &opcao);
+
+    switch (opcao)
+    {
+    case 1:
+        printf("Novas vitórias:");
+        scanf("%d", &pont);
+        jogadorAtualizado.campeonato.vitorias += pont;
+        printf("Vitórias totais: %d", jogadorAtualizado.campeonato.vitorias);
+        break;
+    case 2:
+        printf("Novas derrotas:");
+        scanf("%d", &pont);
+        jogadorAtualizado.campeonato.derrotas += pont;
+        break;
+    case 3:
+        printf("Novos empates:");
+        scanf("%d", &pont);
+        jogadorAtualizado.campeonato.empates += pont;
+        break;
+    default:
+        printf("");
+    }
+
+ 
+    // Write the updated record back to the file
+    fseek(file, a * sizeof(JOGADOR), SEEK_SET);
+    fwrite(&jogadorAtualizado, sizeof(JOGADOR), 1, file);
+
+
+    fclose(file);
+}
+
 int main()
 {
     setlocale(LC_ALL, "portuguese");
@@ -179,6 +238,7 @@ int main()
     printf("1. Registrar jogador\n");
     printf("2. Imprimir jogador\n");
     printf("3. Alterar jogador\n");
+    printf("4. Alterar pontuação\n");
 
     printf("Opção: ");
     scanf("%d", &opcao);
@@ -194,6 +254,8 @@ int main()
     case 3:
         alterarJogador(jogadores);
         break;
+    case 4:
+        alterarPosicao(jogadores);
     default:
         printf("Opção inválida.\n");
     }
