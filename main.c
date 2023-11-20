@@ -266,6 +266,47 @@ void listarJogadoresPorNome()
     fclose(file);
 }
 
+
+int compararRanks(const void *a, const void *b)
+{
+    return ((JOGADOR *)a)->rank - ((JOGADOR *)b)->rank;
+}
+
+void listarJogadoresPorRank()
+{
+    FILE *file;
+    file = fopen("jogadores.dat", "rb");
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    int numPlayers = fileSize / sizeof(JOGADOR);
+
+    JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
+
+    fread(jogadores, sizeof(JOGADOR), numPlayers, file);
+
+    // Sort players by rank
+    qsort(jogadores, numPlayers, sizeof(JOGADOR), compararRanks);
+
+    // Print sorted ranks
+    printf("Jogadores em ordem de ranking:\n");
+    for (int i = 0; i < numPlayers; i++)
+    {
+        printf("Rank: %d, Nome: %s\n", jogadores[i].rank, jogadores[i].nome);
+    }
+
+    free(jogadores);
+    fclose(file);
+}
+
 int main()
 {
     setlocale(LC_ALL, "portuguese");
@@ -279,6 +320,8 @@ int main()
     printf("3. Alterar jogador\n");
     printf("4. Alterar pontuação\n");
     printf("5. Listar jogadores por nome\n");
+    printf("6. Listar jogadores por Ranking\n");
+
 
     printf("Opção: ");
     scanf("%d", &opcao);
@@ -300,6 +343,8 @@ int main()
     case 5:
         listarJogadoresPorNome();
         break;
+    case 6:
+        listarJogadoresPorRank();
     default:
         printf("Opção inválida.\n");
     }
