@@ -3,6 +3,9 @@
 #include <string.h>
 #include <locale.h>
 
+#define MAX_PLAYERS 50
+#define MAX_NAME_LENGTH 50
+
 typedef struct equipe
 {
     char nome[50];
@@ -218,12 +221,48 @@ void alterarPosicao(JOGADOR players[])
         printf("");
     }
 
- 
     // Write the updated record back to the file
     fseek(file, a * sizeof(JOGADOR), SEEK_SET);
     fwrite(&jogadorAtualizado, sizeof(JOGADOR), 1, file);
 
+    fclose(file);
+}
+int compararNomes(const void *a, const void *b)
+{
+    return strcmp(((JOGADOR *)a)->nome, ((JOGADOR *)b)->nome);
+}
+void listarJogadoresPorNome()
+{
+    FILE *file;
+    file = fopen("jogadores.dat", "rb");
 
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    int numPlayers = fileSize / sizeof(JOGADOR);
+
+    JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
+
+    fread(jogadores, sizeof(JOGADOR), numPlayers, file);
+
+    // Sort players by name
+    qsort(jogadores, numPlayers, sizeof(JOGADOR), compararNomes);
+
+    // Print sorted names
+    printf("Jogadores em ordem alfabética:\n");
+    for (int i = 0; i < numPlayers; i++)
+    {
+        printf("%s\n", jogadores[i].nome);
+    }
+
+    free(jogadores);
     fclose(file);
 }
 
@@ -232,13 +271,14 @@ int main()
     setlocale(LC_ALL, "portuguese");
 
     int opcao;
-    JOGADOR jogadores[50];
+    JOGADOR jogadores[MAX_PLAYERS];
 
     printf("Olá! Bem-vindo ao programa E-Sports.\n");
     printf("1. Registrar jogador\n");
     printf("2. Imprimir jogador\n");
     printf("3. Alterar jogador\n");
     printf("4. Alterar pontuação\n");
+    printf("5. Listar jogadores por nome\n");
 
     printf("Opção: ");
     scanf("%d", &opcao);
@@ -256,6 +296,10 @@ int main()
         break;
     case 4:
         alterarPosicao(jogadores);
+        break;
+    case 5:
+        listarJogadoresPorNome();
+        break;
     default:
         printf("Opção inválida.\n");
     }
