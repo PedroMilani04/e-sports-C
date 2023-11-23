@@ -307,6 +307,48 @@ void listarJogadoresPorRank()
     fclose(file);
 }
 
+
+int compararVitorias(const void *a, const void *b)
+{
+    return ((JOGADOR *)b)->campeonato.vitorias - ((JOGADOR *)a)->campeonato.vitorias;
+}
+
+void listarJogadoresPorVitoria()
+{
+    FILE *file;
+    file = fopen("jogadores.dat", "rb");
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    int numPlayers = fileSize / sizeof(JOGADOR);
+
+    JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
+
+    fread(jogadores, sizeof(JOGADOR), numPlayers, file);
+
+    // Sort players by victories
+    qsort(jogadores, numPlayers, sizeof(JOGADOR), compararVitorias);
+
+    // Print top 10 players with most victories
+    int topPlayers = (numPlayers < 10) ? numPlayers : 10;
+    printf("Top 10 jogadores com mais vitórias:\n");
+    for (int i = 0; i < topPlayers; i++)
+    {
+        printf("Posição: %d, Vitórias: %d, Nome: %s\n", i + 1, jogadores[i].campeonato.vitorias, jogadores[i].nome);
+    }
+
+    free(jogadores);
+    fclose(file);
+}
+
 int main()
 {
     setlocale(LC_ALL, "portuguese");
@@ -321,6 +363,8 @@ int main()
     printf("4. Alterar pontuação\n");
     printf("5. Listar jogadores por nome\n");
     printf("6. Listar jogadores por Ranking\n");
+    printf("7. Listar jogadores por No de vitórias\n");
+
 
 
     printf("Opção: ");
@@ -345,6 +389,8 @@ int main()
         break;
     case 6:
         listarJogadoresPorRank();
+    case 7:
+        listarJogadoresPorVitoria();
     default:
         printf("Opção inválida.\n");
     }
