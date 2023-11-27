@@ -110,6 +110,63 @@ void criarJogador(JOGADOR players[])
     return;
 }
 
+int compararClassificacao(const void *a, const void *b)
+{
+    const JOGADOR *jogadorA = (const JOGADOR *)a;
+    const JOGADOR *jogadorB = (const JOGADOR *)b;
+
+    // compara por pontuacao, se for igual, compara por vitoria, se for igual, por derrota, e se for igual dnv, por empate
+
+    if (jogadorA->campeonato.pontuacao != jogadorB->campeonato.pontuacao)
+        return jogadorB->campeonato.pontuacao - jogadorA->campeonato.pontuacao;
+
+    if (jogadorA->campeonato.vitorias != jogadorB->campeonato.vitorias)
+        return jogadorB->campeonato.vitorias - jogadorA->campeonato.vitorias;
+
+    if (jogadorA->campeonato.derrotas != jogadorB->campeonato.derrotas)
+        return jogadorA->campeonato.derrotas - jogadorB->campeonato.derrotas;
+
+    return jogadorB->campeonato.empates - jogadorA->campeonato.empates;
+}
+
+void mostrarClassificacao()
+{
+    FILE *file;
+    file = fopen("jogadores.dat", "rb");
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    int numPlayers = fileSize / sizeof(JOGADOR);
+
+    JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
+
+    fread(jogadores, sizeof(JOGADOR), numPlayers, file);
+
+    // Sort players by classification criteria
+    qsort(jogadores, numPlayers, sizeof(JOGADOR), compararClassificacao);
+
+    // Display the classification in a simpler format
+    printf("%-4s %-20s %-5s %-8s %-8s %-8s %-8s\n", "Pos.", "Nome", "Rank", "Pontos", "Vitórias", "Derrotas", "Empates");
+
+    for (int i = 0; i < numPlayers; i++)
+    {
+        printf("%-4d %-20s %-5d %-8d %-8d %-8d %-8d\n", i + 1, jogadores[i].nome, jogadores[i].rank,
+               jogadores[i].campeonato.pontuacao, jogadores[i].campeonato.vitorias,
+               jogadores[i].campeonato.derrotas, jogadores[i].campeonato.empates);
+    }
+
+    free(jogadores);
+    fclose(file);
+}
+
 void exibirJogador(JOGADOR *a)
 {
     printf("Nome: %s\n", a->nome);
@@ -266,7 +323,6 @@ void listarJogadoresPorNome()
     fclose(file);
 }
 
-
 int compararRanks(const void *a, const void *b)
 {
     return ((JOGADOR *)a)->rank - ((JOGADOR *)b)->rank;
@@ -306,7 +362,6 @@ void listarJogadoresPorRank()
     free(jogadores);
     fclose(file);
 }
-
 
 int compararVitorias(const void *a, const void *b)
 {
@@ -349,11 +404,77 @@ void listarJogadoresPorVitoria()
     fclose(file);
 }
 
+void listarJogadoresPontuacaoMaior(int valorPontuacao)
+{
+
+    FILE *file;
+    file = fopen("jogadores.dat", "rb");
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    int numPlayers = fileSize / sizeof(JOGADOR);
+
+    JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
+
+    fread(jogadores, sizeof(JOGADOR), numPlayers, file);
+    printf("Jogadores com pontuação maior que %d:\n", valorPontuacao);
+
+    for (int i = 0; i < numPlayers; i++)
+    {
+        if (jogadores[i].campeonato.pontuacao > valorPontuacao)
+        {
+            printf("%s\n", jogadores[i].nome);
+        }
+    }
+}
+
+
+void listarJogadoresPontuacaoMenor(int valorPontuacao)
+{
+
+    FILE *file;
+    file = fopen("jogadores.dat", "rb");
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    int numPlayers = fileSize / sizeof(JOGADOR);
+
+    JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
+
+    fread(jogadores, sizeof(JOGADOR), numPlayers, file);
+    printf("Jogadores com pontuação menor que %d:\n", valorPontuacao);
+
+    for (int i = 0; i < numPlayers; i++)
+    {
+        if (jogadores[i].campeonato.pontuacao < valorPontuacao)
+        {
+            printf("%s\n", jogadores[i].nome);
+        }
+    }
+}
+
+
 int main()
 {
     setlocale(LC_ALL, "portuguese");
 
-    int opcao;
+    int opcao, valorPontuacao;
     JOGADOR jogadores[MAX_PLAYERS];
 
     printf("Olá! Bem-vindo ao programa E-Sports.\n");
@@ -364,7 +485,9 @@ int main()
     printf("5. Listar jogadores por nome\n");
     printf("6. Listar jogadores por Ranking\n");
     printf("7. Listar jogadores por No de vitórias\n");
-
+    printf("8. Listar tabela de classificação\n");
+    printf("9. Listar jogadores >\n");
+    printf("10. Listar jogadores <\n");
 
 
     printf("Opção: ");
@@ -389,8 +512,23 @@ int main()
         break;
     case 6:
         listarJogadoresPorRank();
+        break;
     case 7:
         listarJogadoresPorVitoria();
+        break;
+    case 8:
+        mostrarClassificacao();
+        break;
+    case 9:
+        printf("Digite a pontuação desejada: ");
+        scanf("%d", &valorPontuacao);
+        listarJogadoresPontuacaoMaior(valorPontuacao);
+        break;
+    case 10:
+        printf("Digite a pontuação desejada: ");
+        scanf("%d", &valorPontuacao);
+        listarJogadoresPontuacaoMenor(valorPontuacao);
+        break;
     default:
         printf("Opção inválida.\n");
     }
