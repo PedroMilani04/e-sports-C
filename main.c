@@ -169,6 +169,7 @@ void mostrarClassificacao()
 
 void exibirJogador(JOGADOR *a)
 {
+    // ADICIONAR O RESTO!!!!!!!!!!!!
     printf("Nome: %s\n", a->nome);
 }
 
@@ -436,7 +437,6 @@ void listarJogadoresPontuacaoMaior(int valorPontuacao)
     }
 }
 
-
 void listarJogadoresPontuacaoMenor(int valorPontuacao)
 {
 
@@ -469,6 +469,48 @@ void listarJogadoresPontuacaoMenor(int valorPontuacao)
     }
 }
 
+void exibirJogadorPorNome(const char *nome)
+{
+    FILE *file;
+    file = fopen("jogadores.dat", "rb");
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    int numPlayers = fileSize / sizeof(JOGADOR);
+
+    JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
+
+    fread(jogadores, sizeof(JOGADOR), numPlayers, file);
+
+    // Search for the player with the given name
+    int jogadorEncontrado = 0;
+    for (int i = 0; i < numPlayers; i++)
+    {
+        if (strcmp(jogadores[i].nome, nome) == 0)
+        {
+            jogadorEncontrado = 1;
+            printf("Informações sobre o jogador %s:\n", nome);
+            exibirJogador(&jogadores[i]);
+            break;
+        }
+    }
+
+    if (!jogadorEncontrado)
+    {
+        printf("Jogador não encontrado.\n");
+    }
+
+    free(jogadores);
+    fclose(file);
+}
 
 int main()
 {
@@ -488,7 +530,6 @@ int main()
     printf("8. Listar tabela de classificação\n");
     printf("9. Listar jogadores >\n");
     printf("10. Listar jogadores <\n");
-
 
     printf("Opção: ");
     scanf("%d", &opcao);
@@ -528,6 +569,12 @@ int main()
         printf("Digite a pontuação desejada: ");
         scanf("%d", &valorPontuacao);
         listarJogadoresPontuacaoMenor(valorPontuacao);
+        break;
+    case 11: // Assuming you want to use option 11 for this new functionality
+        printf("Digite o nome do jogador: ");
+        char nomeJogador[MAX_NAME_LENGTH];
+        scanf("%s", nomeJogador);
+        exibirJogadorPorNome(nomeJogador);
         break;
     default:
         printf("Opção inválida.\n");
