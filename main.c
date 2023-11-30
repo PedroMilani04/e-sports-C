@@ -512,11 +512,109 @@ void exibirJogadorPorNome(const char *nome)
     fclose(file);
 }
 
+void exibirJogadorPorRank(int rank)
+{
+    FILE *file;
+    file = fopen("jogadores.dat", "rb");
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    int numPlayers = fileSize / sizeof(JOGADOR);
+
+    JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
+
+    fread(jogadores, sizeof(JOGADOR), numPlayers, file);
+
+    // Search for the player with the given rank
+    int jogadorEncontrado = 0;
+    for (int i = 0; i < numPlayers; i++)
+    {
+        if (jogadores[i].rank == rank)
+        {
+            jogadorEncontrado = 1;
+            printf("Informações sobre o jogador no rank %d:\n", rank);
+            exibirJogador(&jogadores[i]);
+            break;
+        }
+    }
+
+    if (!jogadorEncontrado)
+    {
+        printf("Jogador não encontrado no rank %d.\n", rank);
+    }
+
+    free(jogadores);
+    fclose(file);
+}
+
+float calcularMediaSeguidoresPorJogador(const char *nome)
+{
+    FILE *file;
+    file = fopen("jogadores.dat", "rb");
+
+    if (file == NULL)
+    {
+        printf("O ARQUIVO NÃO FOI ABERTO!\n");
+        return 0.0; // Return 0.0 in case of an error
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    int numPlayers = fileSize / sizeof(JOGADOR);
+
+    JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
+
+    fread(jogadores, sizeof(JOGADOR), numPlayers, file);
+
+    // Find the player with the given name
+    int jogadorEncontrado = 0;
+    float totalSeguidores = 0;
+    int count = 0;
+
+    for (int i = 0; i < numPlayers; i++)
+    {
+        if (strcmp(jogadores[i].nome, nome) == 0)
+        {
+            jogadorEncontrado = 1;
+            totalSeguidores += jogadores[i].numeroseg;
+            count++;
+        }
+    }
+
+    if (jogadorEncontrado)
+    {
+        // Calculate the mean and display it
+        float media = totalSeguidores / numPlayers;
+        printf("A média de seguidores para %s é: %.2f\n", nome, media);
+    }
+    else
+    {
+        printf("Jogador %s não encontrado.\n", nome);
+    }
+
+    free(jogadores);
+    fclose(file);
+
+    return 0.0; // Return 0.0 in case of an error
+}
+
 int main()
 {
     setlocale(LC_ALL, "portuguese");
 
     int opcao, valorPontuacao;
+    char nomeJogador[MAX_NAME_LENGTH];
+
     JOGADOR jogadores[MAX_PLAYERS];
 
     printf("Olá! Bem-vindo ao programa E-Sports.\n");
@@ -530,6 +628,9 @@ int main()
     printf("8. Listar tabela de classificação\n");
     printf("9. Listar jogadores >\n");
     printf("10. Listar jogadores <\n");
+    printf("11. Procurar jogador por nome\n");
+    printf("12. Procurar jogador por ranking\n");
+    printf("13. Média de seguidores de um jogador\n");
 
     printf("Opção: ");
     scanf("%d", &opcao);
@@ -572,9 +673,19 @@ int main()
         break;
     case 11: // Assuming you want to use option 11 for this new functionality
         printf("Digite o nome do jogador: ");
-        char nomeJogador[MAX_NAME_LENGTH];
         scanf("%s", nomeJogador);
         exibirJogadorPorNome(nomeJogador);
+        break;
+    case 12: // Assuming you want to use option 12 for this new functionality
+        printf("Digite o rank do jogador: ");
+        int rankJogador;
+        scanf("%d", &rankJogador);
+        exibirJogadorPorRank(rankJogador);
+        break;
+    case 13: // Assuming you want to use option 13 for this new functionality
+        printf("Digite o nome do jogador: ");
+        scanf("%s", nomeJogador);
+        calcularMediaSeguidoresPorJogador(nomeJogador);
         break;
     default:
         printf("Opção inválida.\n");
