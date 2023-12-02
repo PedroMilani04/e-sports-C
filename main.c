@@ -146,14 +146,15 @@ void mostrarClassificacao()
 
     int numPlayers = fileSize / sizeof(JOGADOR);
 
+    // aloca os bytes corretos para a variavel
     JOGADOR *jogadores = malloc(numPlayers * sizeof(JOGADOR));
 
     fread(jogadores, sizeof(JOGADOR), numPlayers, file);
 
-    // Sort players by classification criteria
+    // Faz um sort pela classificação
     qsort(jogadores, numPlayers, sizeof(JOGADOR), compararClassificacao);
 
-    // Display the classification in a simpler format
+    // Mostra a classificação numa tabela
     printf("%-4s %-20s %-5s %-8s %-8s %-8s %-8s\n", "Pos.", "Nome", "Rank", "Pontos", "Vitórias", "Derrotas", "Empates");
 
     for (int i = 0; i < numPlayers; i++)
@@ -190,7 +191,7 @@ void imprimirJogador(JOGADOR players[])
 
     JOGADOR jogadorlido;
     fseek(file, a * sizeof(JOGADOR), SEEK_SET); // Move o ponteiro para a posição correta
-    fread(&jogadorlido, sizeof(JOGADOR), 1, file);
+    fread(&jogadorlido, sizeof(JOGADOR), 1, file); // na nova posição, recolhe o jogador para variavel
 
     // Exibir diretamente sem a necessidade de outra função
     printf("Nome: %s\n", jogadorlido.nome);
@@ -201,7 +202,7 @@ void imprimirJogador(JOGADOR players[])
 void alterarJogador(JOGADOR players[])
 {
     FILE *file;
-    file = fopen("jogadores.dat", "rb+"); // Open in read and write mode
+    file = fopen("jogadores.dat", "rb+"); // abre no read e write +
 
     if (file == NULL)
     {
@@ -217,11 +218,10 @@ void alterarJogador(JOGADOR players[])
     fseek(file, a * sizeof(JOGADOR), SEEK_SET);
     fread(&jogadorAtualizado, sizeof(JOGADOR), 1, file);
 
-    // Prompt for the field to be updated
     printf("Digite o novo nome do jogador: ");
     scanf("%s", jogadorAtualizado.nome);
 
-    // Write the updated record back to the file
+    // escreve novamente no arquivo
     fseek(file, a * sizeof(JOGADOR), SEEK_SET);
     fwrite(&jogadorAtualizado, sizeof(JOGADOR), 1, file);
 
@@ -233,7 +233,7 @@ void alterarJogador(JOGADOR players[])
 void alterarPosicao(JOGADOR players[])
 {
     FILE *file;
-    file = fopen("jogadores.dat", "rb+"); // Open in read and write mode
+    file = fopen("jogadores.dat", "rb+"); 
 
     if (file == NULL)
     {
@@ -279,7 +279,7 @@ void alterarPosicao(JOGADOR players[])
         printf("");
     }
 
-    // Write the updated record back to the file
+    // Escreve a atualização no arquivo
     fseek(file, a * sizeof(JOGADOR), SEEK_SET);
     fwrite(&jogadorAtualizado, sizeof(JOGADOR), 1, file);
 
@@ -287,8 +287,14 @@ void alterarPosicao(JOGADOR players[])
 }
 int compararNomes(const void *a, const void *b)
 {
-    return strcmp(((JOGADOR *)a)->nome, ((JOGADOR *)b)->nome);
+    // Assimila o ponteiro a e b com outro ponteiro
+    const JOGADOR *jogadorA = (const JOGADOR *)a;
+    const JOGADOR *jogadorB = (const JOGADOR *)b;
+
+    // Usa strcmp para comparar o conteudo que veio dos ponteiros e estão em jogadorA e B
+    return strcmp(jogadorA->nome, jogadorB->nome);
 }
+
 void listarJogadoresPorNome()
 {
     FILE *file;
@@ -310,10 +316,8 @@ void listarJogadoresPorNome()
 
     fread(jogadores, sizeof(JOGADOR), numPlayers, file);
 
-    // Sort players by name
     qsort(jogadores, numPlayers, sizeof(JOGADOR), compararNomes);
 
-    // Print sorted names
     printf("Jogadores em ordem alfabética:\n");
     for (int i = 0; i < numPlayers; i++)
     {
@@ -326,8 +330,12 @@ void listarJogadoresPorNome()
 
 int compararRanks(const void *a, const void *b)
 {
-    return ((JOGADOR *)a)->rank - ((JOGADOR *)b)->rank;
+    const JOGADOR *jogadorA = (const JOGADOR *)a;
+    const JOGADOR *jogadorB = (const JOGADOR *)b;
+// um jogador menos o outro, se for possitivo, A > B, Negativo, B > A, se 0, A = B
+    return jogadorA->rank - jogadorB->rank;
 }
+
 
 void listarJogadoresPorRank()
 {
@@ -350,10 +358,9 @@ void listarJogadoresPorRank()
 
     fread(jogadores, sizeof(JOGADOR), numPlayers, file);
 
-    // Sort players by rank
+    // faz o qsort por ranking
     qsort(jogadores, numPlayers, sizeof(JOGADOR), compararRanks);
 
-    // Print sorted ranks
     printf("Jogadores em ordem de ranking:\n");
     for (int i = 0; i < numPlayers; i++)
     {
@@ -366,6 +373,7 @@ void listarJogadoresPorRank()
 
 int compararVitorias(const void *a, const void *b)
 {
+    //memsa logica da comparação via rank
     return ((JOGADOR *)b)->campeonato.vitorias - ((JOGADOR *)a)->campeonato.vitorias;
 }
 
@@ -390,10 +398,10 @@ void listarJogadoresPorVitoria()
 
     fread(jogadores, sizeof(JOGADOR), numPlayers, file);
 
-    // Sort players by victories
+    // faz o qsort por vitorias
     qsort(jogadores, numPlayers, sizeof(JOGADOR), compararVitorias);
 
-    // Print top 10 players with most victories
+    // top 10 players (caso tenha + de 10)
     int topPlayers = (numPlayers < 10) ? numPlayers : 10;
     printf("Top 10 jogadores com mais vitórias:\n");
     for (int i = 0; i < topPlayers; i++)
@@ -490,7 +498,7 @@ void exibirJogadorPorNome(const char *nome)
 
     fread(jogadores, sizeof(JOGADOR), numPlayers, file);
 
-    // Search for the player with the given name
+    // Procura e altera jogadorEncontrado quando o nome for igual ao procurado
     int jogadorEncontrado = 0;
     for (int i = 0; i < numPlayers; i++)
     {
@@ -533,7 +541,7 @@ void exibirJogadorPorRank(int rank)
 
     fread(jogadores, sizeof(JOGADOR), numPlayers, file);
 
-    // Search for the player with the given rank
+    // Procura o jogador com rank igual ao passado pelo usuario e altera jogadorEncontrado
     int jogadorEncontrado = 0;
     for (int i = 0; i < numPlayers; i++)
     {
@@ -563,7 +571,7 @@ float calcularMediaSeguidoresPorJogador(const char *nome)
     if (file == NULL)
     {
         printf("O ARQUIVO NÃO FOI ABERTO!\n");
-        return 0.0; // Return 0.0 in case of an error
+        return 0.0; // no erro, retorna 0.0
     }
 
     fseek(file, 0, SEEK_END);
@@ -576,7 +584,6 @@ float calcularMediaSeguidoresPorJogador(const char *nome)
 
     fread(jogadores, sizeof(JOGADOR), numPlayers, file);
 
-    // Find the player with the given name
     int jogadorEncontrado = 0;
     float totalSeguidores = 0;
     int count = 0;
@@ -593,7 +600,7 @@ float calcularMediaSeguidoresPorJogador(const char *nome)
 
     if (jogadorEncontrado)
     {
-        // Calculate the mean and display it
+        // faz a media do numero de seguidores se achar o jogador 
         float media = totalSeguidores / numPlayers;
         printf("A média de seguidores para %s é: %.2f\n", nome, media);
     }
@@ -605,7 +612,7 @@ float calcularMediaSeguidoresPorJogador(const char *nome)
     free(jogadores);
     fclose(file);
 
-    return 0.0; // Return 0.0 in case of an error
+    return 0.0; 
 }
 
 int main()
@@ -671,18 +678,18 @@ int main()
         scanf("%d", &valorPontuacao);
         listarJogadoresPontuacaoMenor(valorPontuacao);
         break;
-    case 11: // Assuming you want to use option 11 for this new functionality
+    case 11: 
         printf("Digite o nome do jogador: ");
         scanf("%s", nomeJogador);
         exibirJogadorPorNome(nomeJogador);
         break;
-    case 12: // Assuming you want to use option 12 for this new functionality
+    case 12: 
         printf("Digite o rank do jogador: ");
         int rankJogador;
         scanf("%d", &rankJogador);
         exibirJogadorPorRank(rankJogador);
         break;
-    case 13: // Assuming you want to use option 13 for this new functionality
+    case 13:
         printf("Digite o nome do jogador: ");
         scanf("%s", nomeJogador);
         calcularMediaSeguidoresPorJogador(nomeJogador);
