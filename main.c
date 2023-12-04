@@ -170,9 +170,29 @@ void mostrarClassificacao()
 
 void exibirJogador(JOGADOR *a)
 {
-    // ADICIONAR O RESTO!!!!!!!!!!!!
     printf("Nome: %s\n", a->nome);
+    printf("Data de Nascimento: %s\n", a->nasc);
+    printf("CPF: %s\n", a->CPF);
+    printf("Gênero: %s\n", a->genero);
+    printf("Estado Civil: %s\n", a->estadocivil);
+    printf("Equipe: %s\n", a->equipe.nome);
+    printf("Nick da Equipe: %s\n", a->equipe.nick);
+    printf("Número de Seguidores da Equipe: %d\n", a->equipe.seguidores);
+    printf("Patrocinador: %s\n", a->patrocinio);
+    printf("Nick do Jogador: %s\n", a->nick);
+    printf("Número de Seguidores do Jogador: %d\n", a->numeroseg);
+    printf("Computador: %s\n", a->hardware.computador);
+    printf("CPU: %s\n", a->hardware.processador);
+    printf("GPU: %s\n", a->hardware.placadevideo);
+    printf("RAM: %d\n", a->hardware.RAM);
+    printf("Pontuação de Campeonato: %d\n", a->campeonato.pontuacao);
+    printf("Vitórias de Campeonato: %d\n", a->campeonato.vitorias);
+    printf("Derrotas de Campeonato: %d\n", a->campeonato.derrotas);
+    printf("Empates de Campeonato: %d\n", a->campeonato.empates);
+    printf("Número de Títulos: %d\n", a->titulos);
+    printf("Rank: %d\n", a->rank);
 }
+
 
 void imprimirJogador(JOGADOR players[])
 {
@@ -193,8 +213,7 @@ void imprimirJogador(JOGADOR players[])
     fseek(file, a * sizeof(JOGADOR), SEEK_SET); // Move o ponteiro para a posição correta
     fread(&jogadorlido, sizeof(JOGADOR), 1, file); // na nova posição, recolhe o jogador para variavel
 
-    // Exibir diretamente sem a necessidade de outra função
-    printf("Nome: %s\n", jogadorlido.nome);
+    exibirJogador(&jogadorlido);
 
     fclose(file);
 }
